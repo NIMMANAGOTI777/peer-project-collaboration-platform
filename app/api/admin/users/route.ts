@@ -7,12 +7,17 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
   try {
     const auth = getAuthFromRequest(req);
-    if (!auth || auth.role !== 'ADMIN') {
+    if (!auth) {
+      return NextResponse.json({ error: 'Unauthorized: Authentication required.' }, { status: 401 });
+    }
+    if (auth.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden: Admin access only.' }, { status: 403 });
     }
 
     const { searchParams } = new URL(req.url);
     const search = searchParams.get('search') || '';
+    const roleFilter = searchParams.get('role') || '';
+    const statusFilter = searchParams.get('status') || '';
 
     const where: any = {};
     if (search) {
@@ -20,6 +25,14 @@ export async function GET(req: NextRequest) {
         { name: { contains: search } },
         { email: { contains: search } },
       ];
+    }
+    if (roleFilter && (roleFilter === 'STUDENT' || roleFilter === 'ADMIN')) {
+      where.role = roleFilter;
+    }
+    if (statusFilter === 'active') {
+      where.isActive = true;
+    } else if (statusFilter === 'inactive') {
+      where.isActive = false;
     }
 
     const users = await prisma.user.findMany({
@@ -47,7 +60,10 @@ export async function GET(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   try {
     const auth = getAuthFromRequest(req);
-    if (!auth || auth.role !== 'ADMIN') {
+    if (!auth) {
+      return NextResponse.json({ error: 'Unauthorized: Authentication required.' }, { status: 401 });
+    }
+    if (auth.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden: Admin access only.' }, { status: 403 });
     }
 
@@ -56,6 +72,22 @@ export async function PATCH(req: NextRequest) {
 
     if (!userId) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    }
+
+    // Safety checks: do not allow an admin to accidentally demote or deactivate their own account
+    if (userId === auth.id) {
+      if (role && role !== 'ADMIN') {
+        return NextResponse.json(
+          { error: 'Action denied: Administrators cannot remove their own admin privileges.' },
+          { status: 400 }
+        );
+      }
+      if (isActive === false) {
+        return NextResponse.json(
+          { error: 'Action denied: Administrators cannot deactivate their own account.' },
+          { status: 400 }
+        );
+      }
     }
 
     const updated = await prisma.user.update({

@@ -1,127 +1,132 @@
 'use client';
 
-import React, { useState } from 'react';
-import AppLayout from '@/components/layout/AppLayout';
-import { SlidersHorizontal, ShieldAlert, CheckCircle2, Database, Key } from 'lucide-react';
+import React from 'react';
+import {
+  SlidersHorizontal,
+  ShieldCheck,
+  Database,
+  Key,
+  Layers,
+  Sparkles,
+  Server,
+  Lock,
+} from 'lucide-react';
 
 export default function AdminSettingsPage() {
-  const [matchingSkillWeight, setMatchingSkillWeight] = useState('60');
-  const [matchingInterestWeight, setMatchingInterestWeight] = useState('20');
-  const [matchingAvailWeight, setMatchingAvailWeight] = useState('10');
-  const [matchingExpWeight, setMatchingExpWeight] = useState('10');
-  const [saveSuccess, setSaveSuccess] = useState(false);
-
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 2500);
-  };
-
   return (
-    <AppLayout>
-      <div className="max-w-3xl mx-auto space-y-6">
-        <div className="pb-4 border-b border-slate-200">
-          <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-            <SlidersHorizontal className="h-6 w-6 text-indigo-600" />
-            Platform Governance & Parameters
-          </h1>
-          <p className="mt-1 text-xs sm:text-sm text-slate-500">
-            Configure system matching parameters, evaluation constants, and database connection modes.
-          </p>
+    <div className="max-w-4xl space-y-8">
+      {/* Header */}
+      <div className="pb-6 border-b border-slate-800">
+        <h1 className="text-2xl font-black text-white flex items-center gap-2">
+          <SlidersHorizontal className="h-6 w-6 text-amber-400" />
+          Platform Configuration & Algorithm Parameters
+        </h1>
+        <p className="mt-1 text-xs sm:text-sm text-slate-400">
+          Official B.Tech CSE Mini Project matching weights, architectural governance, and security policies.
+        </p>
+      </div>
+
+      {/* Matching Algorithm Parameters */}
+      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-xl space-y-5">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <h2 className="text-sm font-bold text-white flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-amber-400" />
+            Recommendation & Compatibility Algorithm Weights
+          </h2>
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+            Sum: 100% Normalized
+          </span>
         </div>
 
-        {saveSuccess && (
-          <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 font-bold flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-            Matching parameters updated successfully!
-          </div>
-        )}
+        <p className="text-xs text-slate-300 leading-relaxed">
+          The peer matching engine calculates pairwise compatibility between students and project listings using the weighted multi-factor scoring formula:
+        </p>
 
-        <form onSubmit={handleSave} className="space-y-6">
-          {/* Matching Engine Formula Weights */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-card space-y-4">
-            <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <ShieldAlert className="h-4 w-4 text-amber-500" />
-              Recommendation Engine Weights (Must sum to 100%)
-            </h2>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-              <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                  Skill Match (%)
-                </label>
-                <input
-                  type="number"
-                  value={matchingSkillWeight}
-                  onChange={(e) => setMatchingSkillWeight(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 font-bold text-indigo-600"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                  Interest Match (%)
-                </label>
-                <input
-                  type="number"
-                  value={matchingInterestWeight}
-                  onChange={(e) => setMatchingInterestWeight(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 font-bold text-blue-600"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                  Availability (%)
-                </label>
-                <input
-                  type="number"
-                  value={matchingAvailWeight}
-                  onChange={(e) => setMatchingAvailWeight(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 font-bold text-emerald-600"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                  Experience (%)
-                </label>
-                <input
-                  type="number"
-                  value={matchingExpWeight}
-                  onChange={(e) => setMatchingExpWeight(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 font-bold text-purple-600"
-                />
-              </div>
-            </div>
-
-            <p className="text-[11px] text-slate-500 italic">
-              Mini Project standard formula: 0.60 × skill_match + 0.20 × interest_match + 0.10 × availability_match + 0.10 × experience_match.
-            </p>
+        {/* 4 Weight Tiles */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-center">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+              Skill Match
+            </span>
+            <span className="text-3xl font-black text-indigo-400">60%</span>
+            <p className="text-[10px] text-slate-500 mt-1">Weight: 0.60</p>
           </div>
 
-          {/* Database & Security Architecture */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-card space-y-3">
-            <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <Database className="h-4 w-4 text-indigo-600" />
-              Database Engine Architecture
-            </h2>
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs space-y-1">
-              <p className="text-slate-800 font-bold">Relational ORM: Prisma Client v5.22.0</p>
-              <p className="text-slate-600">Active Connector: SQLite local file (<code className="font-mono text-indigo-600">dev.db</code>) with PostgreSQL full DDL schema compatibility.</p>
-            </div>
+          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-center">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+              Interest Match
+            </span>
+            <span className="text-3xl font-black text-blue-400">20%</span>
+            <p className="text-[10px] text-slate-500 mt-1">Weight: 0.20</p>
           </div>
 
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-sm"
-            >
-              Save System Configuration
-            </button>
+          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-center">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+              Availability
+            </span>
+            <span className="text-3xl font-black text-emerald-400">10%</span>
+            <p className="text-[10px] text-slate-500 mt-1">Weight: 0.10</p>
           </div>
-        </form>
+
+          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-center">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+              Experience
+            </span>
+            <span className="text-3xl font-black text-purple-400">10%</span>
+            <p className="text-[10px] text-slate-500 mt-1">Weight: 0.10</p>
+          </div>
+        </div>
+
+        {/* Formula Math Box */}
+        <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-amber-300/90 leading-relaxed">
+          <span className="text-[10px] uppercase font-bold text-slate-500 block mb-1 font-sans">
+            Mathematical Evaluation Formula:
+          </span>
+          Score = (0.60 × S_skill) + (0.20 × S_interest) + (0.10 × S_availability) + (0.10 × S_experience)
+        </div>
       </div>
-    </AppLayout>
+
+      {/* Relational Database & ORM Engine Architecture */}
+      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-xl space-y-4">
+        <h2 className="text-sm font-bold text-white flex items-center gap-2">
+          <Database className="h-4 w-4 text-indigo-400" />
+          Database Engine & Schema Architecture
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+            <p className="font-bold text-slate-200">Relational ORM</p>
+            <p className="text-slate-400">Prisma Client v5.22.0</p>
+            <p className="text-[10px] text-emerald-400 font-semibold">✓ Type-safe queries with cascade deletion</p>
+          </div>
+          <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+            <p className="font-bold text-slate-200">Database Engine</p>
+            <p className="text-slate-400">Relational SQLite / PostgreSQL DDL</p>
+            <p className="text-[10px] text-indigo-400 font-semibold">✓ 11 Relational tables & indexes</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Role-Based Access Control & Security Policies */}
+      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-xl space-y-4">
+        <h2 className="text-sm font-bold text-white flex items-center gap-2">
+          <ShieldCheck className="h-4 w-4 text-emerald-400" />
+          Role-Based Access Control (RBAC) & Security Policies
+        </h2>
+        <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 space-y-2 leading-relaxed">
+          <p>
+            <strong className="text-white">Authentication Protocol:</strong> JSON Web Tokens (JWT) signed with HMAC-SHA256 and stored in secure <code className="text-amber-400 font-mono">httpOnly</code> cookies.
+          </p>
+          <p>
+            <strong className="text-white">Password Security:</strong> Bcrypt adaptive hashing with 10 salt rounds.
+          </p>
+          <p>
+            <strong className="text-white">Boundary Isolation:</strong> Complete separation between the public/student client application and the administrative governance panel.
+          </p>
+          <p>
+            <strong className="text-white">API Guards:</strong> Next.js Server Route Handlers enforce 401 Unauthorized for unauthenticated requests and 403 Forbidden for students attempting admin actions.
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
