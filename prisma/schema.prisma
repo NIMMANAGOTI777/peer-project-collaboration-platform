@@ -1,0 +1,213 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String          @id @default(cuid())
+  name         String
+  email        String          @unique
+  passwordHash String
+  role         String          @default("STUDENT") // STUDENT, ADMIN
+  isActive     Boolean         @default(true)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  profile      StudentProfile?
+  studentSkills StudentSkill[]
+  ownedProjects Project[]      @relation("ProjectOwner")
+  teamMemberships TeamMember[]
+  assignedTasks Task[]
+  sentRequests   CollaborationRequest[] @relation("SentRequests")
+  receivedRequests CollaborationRequest[] @relation("ReceivedRequests")
+  notifications  Notification[]
+  reportsFiled   Report[]       @relation("ReporterUser")
+  reportsAgainst Report[]       @relation("ReportedUser")
+
+  @@index([email])
+}
+
+model StudentProfile {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio            String?
+  interests      String?  // comma-separated interests, e.g. "AI, Web Development, Cloud"
+  availability   String?  // e.g. "15-20 hrs/week", "High", "Part-time"
+  experience     String?  // e.g. "Intermediate", "2+ years", "Beginner"
+  department     String?  // e.g. "Computer Science & Engineering"
+  year           String?  // e.g. "3rd Year"
+  githubUsername String?
+  avatarUrl      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Skill {
+  id            String         @id @default(cuid())
+  name          String         @unique
+  category      String         // e.g. "Frontend", "Backend", "Database", "AI/ML", "DevOps", "Mobile"
+  createdAt     DateTime       @default(now())
+
+  studentSkills StudentSkill[]
+  projectSkills ProjectSkill[]
+
+  @@index([name])
+}
+
+model StudentSkill {
+  id          String   @id @default(cuid())
+  userId      String
+  skillId     String
+  proficiency String   @default("INTERMEDIATE") // BEGINNER, INTERMEDIATE, ADVANCED, EXPERT
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill       Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, skillId])
+}
+
+model Project {
+  id                String                 @id @default(cuid())
+  ownerId           String
+  owner             User                   @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  title             String
+  description       String
+  category          String                 // e.g. "Web Development", "AI/ML", "Mobile App", "Cybersecurity", "IoT"
+  status            String                 @default("OPEN") // OPEN, IN_PROGRESS, COMPLETED, CLOSED
+  preferredTeamSize Int                    @default(4)
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+
+  projectSkills     ProjectSkill[]
+  team              Team?
+  tasks             Task[]
+  repository        Repository?
+  requests          CollaborationRequest[]
+  reports           Report[]
+
+  @@index([ownerId])
+  @@index([category])
+  @@index([status])
+}
+
+model ProjectSkill {
+  id            String   @id @default(cuid())
+  projectId     String
+  skillId       String
+  requiredLevel String   @default("INTERMEDIATE") // BEGINNER, INTERMEDIATE, ADVANCED, EXPERT
+
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  skill         Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, skillId])
+}
+
+model Team {
+  id        String       @id @default(cuid())
+  projectId String       @unique
+  project   Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  status    String       @default("FORMING") // FORMING, ACTIVE, COMPLETED
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  members   TeamMember[]
+}
+
+model TeamMember {
+  id       String    @id @default(cuid())
+  teamId   String
+  team     Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role     String    @default("MEMBER") // OWNER, MEMBER
+  joinedAt DateTime  @default(now())
+
+  @@unique([teamId, userId])
+}
+
+model CollaborationRequest {
+  id         String   @id @default(cuid())
+  senderId   String
+  sender     User     @relation("SentRequests", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId String
+  receiver   User     @relation("ReceivedRequests", fields: [receiverId], references: [id], onDelete: Cascade)
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  message    String
+  status     String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([projectId])
+}
+
+model Task {
+  id          String    @id @default(cuid())
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assigneeId  String?
+  assignee    User?     @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
+  title       String
+  description String?
+  status      String    @default("TODO") // TODO, IN_PROGRESS, COMPLETED
+  priority    String    @default("MEDIUM") // LOW, MEDIUM, HIGH
+  dueDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([projectId])
+  @@index([assigneeId])
+}
+
+model Repository {
+  id          String    @id @default(cuid())
+  projectId   String    @unique
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  githubUrl   String
+  owner       String
+  name        String
+  description String?
+  stars       Int       @default(0)
+  forks       Int       @default(0)
+  language    String?
+  lastUpdated DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Notification {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type       String
+  message    String
+  link       String?
+  readStatus Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Report {
+  id           String   @id @default(cuid())
+  reporterId   String
+  reporter     User     @relation("ReporterUser", fields: [reporterId], references: [id], onDelete: Cascade)
+  targetUserId String?
+  targetUser   User?    @relation("ReportedUser", fields: [targetUserId], references: [id], onDelete: SetNull)
+  projectId    String?
+  project      Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  reason       String
+  status       String   @default("PENDING") // PENDING, REVIEWED, RESOLVED, DISMISSED
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([reporterId])
+  @@index([status])
+}
