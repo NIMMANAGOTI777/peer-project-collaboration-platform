@@ -12,7 +12,7 @@ import { CardSkeleton } from '@/components/ui/LoadingSkeleton';
 export default function ProjectTasksPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isDemo } = useAuth();
   const [project, setProject] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -44,8 +44,9 @@ export default function ProjectTasksPage() {
 
   const isMember =
     user?.id === project?.ownerId ||
-    project?.team?.members.some((m: any) => m.userId === user?.id);
-  const isAdmin = user?.role === 'ADMIN';
+    project?.team?.members.some((m: any) => m.userId === user?.id) ||
+    isDemo;
+  const isAdmin = user?.role === 'ADMIN' || isDemo;
 
   const teamMemberOptions =
     project?.team?.members.map((m: any) => ({

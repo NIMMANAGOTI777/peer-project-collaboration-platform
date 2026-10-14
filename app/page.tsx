@@ -17,10 +17,29 @@ import {
   Code2,
   Award,
   Terminal,
+  GraduationCap,
+  Shield,
+  Zap,
 } from 'lucide-react';
 
 export default function LandingPage() {
-  const { user } = useAuth();
+  const { user, enterDemo } = useAuth();
+  const [showDemoModal, setShowDemoModal] = React.useState(false);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const demo = params.get('demo');
+      if (demo) {
+        const normalized = demo.toUpperCase();
+        if (normalized === 'FACULTY_ADMIN' || normalized === 'ADMIN') {
+          enterDemo('ADMIN');
+        } else if (normalized === 'STUDENT') {
+          enterDemo('STUDENT');
+        }
+      }
+    }
+  }, [enterDemo]);
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-indigo-500 selection:text-white">
@@ -49,7 +68,19 @@ export default function LandingPage() {
             </Link>
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Direct Explore Demo CTA in Navbar */}
+            <div className="relative">
+              <button
+                onClick={() => setShowDemoModal(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-indigo-600 text-white text-xs font-bold shadow-sm hover:brightness-105 transition-all"
+                title="Open demo without login"
+              >
+                <Zap className="h-3.5 w-3.5 fill-current" />
+                <span>Explore Demo</span>
+              </button>
+            </div>
+
             {user ? (
               <Link
                 href={user.role === 'ADMIN' ? '/admin' : '/dashboard'}
@@ -62,13 +93,13 @@ export default function LandingPage() {
               <>
                 <Link
                   href="/login"
-                  className="px-3.5 py-1.5 text-xs font-bold text-slate-700 hover:text-indigo-600 hover:bg-slate-100 rounded-lg transition-colors"
+                  className="px-3 py-1.5 text-xs font-bold text-slate-700 hover:text-indigo-600 hover:bg-slate-100 rounded-lg transition-colors"
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/register"
-                  className="px-3.5 py-1.5 text-xs font-bold bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl shadow-sm transition-all"
+                  className="hidden sm:inline-flex px-3.5 py-1.5 text-xs font-bold bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl shadow-sm transition-all"
                 >
                   Get Started
                 </Link>
@@ -77,6 +108,85 @@ export default function LandingPage() {
           </div>
         </div>
       </header>
+
+      {/* Demo Selector Modal */}
+      {showDemoModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+          <div className="relative max-w-lg w-full bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-100 text-left">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-bold">
+                  <Zap className="h-4 w-4 fill-current" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Explore Demo Experience</h3>
+                  <p className="text-[11px] text-slate-500">Instant access · No registration or login required</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowDemoModal(false)}
+                className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-3">
+              {/* Option 1: Explore as Student */}
+              <button
+                onClick={() => {
+                  setShowDemoModal(false);
+                  enterDemo('STUDENT');
+                }}
+                className="w-full p-4 rounded-2xl border-2 border-indigo-200 hover:border-indigo-600 bg-indigo-50/40 hover:bg-indigo-50 text-left transition-all group flex items-start gap-4"
+              >
+                <div className="p-3 rounded-xl bg-indigo-600 text-white shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+                  <GraduationCap className="h-6 w-6" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-slate-900 text-sm">Explore as Student</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
+                      Recommended
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                    Log in as Karthik Rao. Inspect student dashboard, browse 8 projects, view calculated matching scores, manage Kanban tasks, send simulated invites, and view GitHub sync.
+                  </p>
+                </div>
+              </button>
+
+              {/* Option 2: Explore as Admin */}
+              <button
+                onClick={() => {
+                  setShowDemoModal(false);
+                  enterDemo('ADMIN');
+                }}
+                className="w-full p-4 rounded-2xl border-2 border-slate-200 hover:border-amber-500 bg-white hover:bg-amber-50/30 text-left transition-all group flex items-start gap-4"
+              >
+                <div className="p-3 rounded-xl bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform">
+                  <Shield className="h-6 w-6" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-slate-900 text-sm">Explore as Admin</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                      Governance
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                    Log in as Dr. Ramesh Kumar. View administrative governance console, system statistics, 16 users table, moderation reports, project oversight, and skill taxonomy.
+                  </p>
+                </div>
+              </button>
+            </div>
+
+            <div className="mt-5 p-3 rounded-xl bg-slate-50 border border-slate-100 text-[11px] text-slate-500">
+              💡 <span className="font-semibold text-slate-700">Note:</span> Demo mode uses a persistent client-side state so actions (like creating tasks or moving Kanban columns) remain consistent across page navigations without modifying production data.
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Hero Section */}
       <section className="relative overflow-hidden pt-12 pb-20 sm:pt-16 sm:pb-28 bg-gradient-to-b from-white via-indigo-50/30 to-slate-50">
@@ -98,40 +208,84 @@ export default function LandingPage() {
             Discover student projects, find teammates with complementary skills, and manage your entire project lifecycle with transparent compatibility scoring, Kanban tasks, and GitHub sync.
           </p>
 
-          {/* CTA Buttons */}
+          {/* Primary Demo & Action CTA Buttons */}
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button
+              onClick={() => setShowDemoModal(true)}
+              className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-700 to-violet-600 hover:brightness-110 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-indigo-500/25 transition-all flex items-center justify-center gap-2"
+            >
+              <Zap className="h-4 w-4 fill-current text-amber-300" />
+              <span>Explore Demo (No Login Required)</span>
+            </button>
             <Link
               href="/projects"
-              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-indigo-500/20 transition-all flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 font-bold text-xs sm:text-sm shadow-card transition-all flex items-center justify-center gap-2"
             >
-              <Compass className="h-4 w-4" />
-              Find a Project
-            </Link>
-            <Link
-              href="/projects/create"
-              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 font-bold text-xs sm:text-sm shadow-card transition-all flex items-center justify-center gap-2"
-            >
-              <FolderKanban className="h-4 w-4 text-indigo-600" />
-              Create a Project
+              <Compass className="h-4 w-4 text-indigo-600" />
+              Browse Projects
             </Link>
           </div>
 
-          {/* Demo Account Callout Box */}
-          <div className="mt-8 inline-block p-4 rounded-2xl bg-white/90 border border-indigo-100 shadow-soft text-left max-w-md mx-auto">
-            <p className="text-xs font-bold text-indigo-900 mb-1 flex items-center gap-1.5">
-              <Terminal className="h-3.5 w-3.5 text-indigo-600" />
-              Quick College Evaluation Credentials:
-            </p>
-            <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-600 font-mono">
-              <div className="p-2 rounded bg-slate-50 border border-slate-100">
-                <span className="font-bold text-slate-800 font-sans block">Student:</span>
-                student@example.com <br />
-                Student@123
+          {/* Dual Instant Launch Buttons */}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <button
+              onClick={() => enterDemo('STUDENT')}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 text-xs font-bold transition-colors"
+            >
+              <GraduationCap className="h-3.5 w-3.5 text-indigo-600" />
+              <span>Explore as Student</span>
+              <ArrowRight className="h-3 w-3" />
+            </button>
+            <button
+              onClick={() => enterDemo('ADMIN')}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 text-xs font-bold transition-colors"
+            >
+              <Shield className="h-3.5 w-3.5 text-amber-600" />
+              <span>Explore as Admin</span>
+              <ArrowRight className="h-3 w-3" />
+            </button>
+          </div>
+
+          {/* Quick College Evaluation Box with 1-Click Launch */}
+          <div className="mt-8 inline-block p-4 sm:p-5 rounded-2xl bg-white/95 border border-indigo-100 shadow-soft text-left max-w-md mx-auto">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <p className="text-xs font-bold text-indigo-900 flex items-center gap-1.5">
+                <Terminal className="h-3.5 w-3.5 text-indigo-600" />
+                Quick Evaluation Credentials:
+              </p>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">
+                1-Click Ready
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-600">
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-between">
+                <div>
+                  <span className="font-bold text-slate-800 block text-xs">Student Account:</span>
+                  <p className="font-mono text-[10px] text-slate-500 mt-0.5">student@example.com</p>
+                  <p className="font-mono text-[10px] text-slate-500">Student@123</p>
+                </div>
+                <button
+                  onClick={() => enterDemo('STUDENT')}
+                  className="mt-2.5 w-full py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[11px] transition-colors flex items-center justify-center gap-1 shadow-xs"
+                >
+                  <span>Launch Student</span>
+                  <ArrowRight className="h-3 w-3" />
+                </button>
               </div>
-              <div className="p-2 rounded bg-slate-50 border border-slate-100">
-                <span className="font-bold text-slate-800 font-sans block">Admin:</span>
-                admin@example.com <br />
-                Admin@123
+
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-between">
+                <div>
+                  <span className="font-bold text-slate-800 block text-xs">Admin Account:</span>
+                  <p className="font-mono text-[10px] text-slate-500 mt-0.5">admin@example.com</p>
+                  <p className="font-mono text-[10px] text-slate-500">Admin@123</p>
+                </div>
+                <button
+                  onClick={() => enterDemo('ADMIN')}
+                  className="mt-2.5 w-full py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[11px] transition-colors flex items-center justify-center gap-1 shadow-xs"
+                >
+                  <span>Launch Admin</span>
+                  <ArrowRight className="h-3 w-3" />
+                </button>
               </div>
             </div>
           </div>

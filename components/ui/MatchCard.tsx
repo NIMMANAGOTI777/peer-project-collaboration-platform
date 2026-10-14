@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import SkillBadge from './SkillBadge';
 import {
   Sparkles,
@@ -81,12 +82,16 @@ export default function MatchCard({
       <div>
         {/* Header: Candidate Info & Match Score */}
         <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
+          <Link
+            href={`/profile?userId=${match.userId}`}
+            className="flex items-center gap-3 group"
+            title="View student profile"
+          >
             {match.candidateAvatarUrl ? (
               <img
                 src={match.candidateAvatarUrl}
                 alt={match.candidateName || 'Candidate'}
-                className="h-12 w-12 rounded-full object-cover border-2 border-indigo-100 shadow-xs"
+                className="h-12 w-12 rounded-full object-cover border-2 border-indigo-100 shadow-xs group-hover:border-indigo-500 transition-colors"
               />
             ) : (
               <div className="h-12 w-12 rounded-full bg-gradient-to-tr from-indigo-600 to-violet-600 text-white font-bold flex items-center justify-center text-sm shadow-xs">
@@ -94,12 +99,12 @@ export default function MatchCard({
               </div>
             )}
             <div>
-              <h4 className="text-sm font-bold text-slate-900 leading-tight">
+              <h4 className="text-sm font-bold text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors">
                 {match.candidateName || 'Candidate'}
               </h4>
               <p className="text-[11px] text-slate-500">{match.candidateEmail}</p>
             </div>
-          </div>
+          </Link>
 
           {/* Explainable Match Badge */}
           <button

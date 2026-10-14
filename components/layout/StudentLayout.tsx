@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import StudentHeader from '@/components/student/StudentHeader';
 import StudentSidebar from '@/components/student/StudentSidebar';
+import DemoBanner from '@/components/demo/DemoBanner';
+import DemoToast from '@/components/demo/DemoToast';
 import { X } from 'lucide-react';
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
@@ -10,6 +12,8 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
+      <DemoBanner />
+      <DemoToast />
       <StudentHeader onMenuClick={() => setMobileMenuOpen(true)} />
 
       <div className="flex-1 flex overflow-hidden">

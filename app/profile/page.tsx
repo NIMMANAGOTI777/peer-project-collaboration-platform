@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import AppLayout from '@/components/layout/AppLayout';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthContext';
 import SkillBadge from '@/components/ui/SkillBadge';
 import {
@@ -16,21 +17,25 @@ import {
   Layers,
   FolderKanban,
   Users2,
+  ArrowLeft,
 } from 'lucide-react';
 import { CardSkeleton } from '@/components/ui/LoadingSkeleton';
 
-export default function ProfilePage() {
+function ProfileContent() {
   const { user: authUser } = useAuth();
+  const searchParams = useSearchParams();
+  const targetUserId = searchParams.get('userId');
   const [profileData, setProfileData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchProfile();
-  }, []);
+  }, [targetUserId]);
 
   const fetchProfile = async () => {
     try {
-      const res = await fetch('/api/profile');
+      const url = targetUserId ? `/api/profile?userId=${encodeURIComponent(targetUserId)}` : '/api/profile';
+      const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
         setProfileData(data.user);
@@ -92,13 +97,23 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <Link
-              href="/profile/edit"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition-all shrink-0"
-            >
-              <Edit3 className="h-4 w-4" />
-              Edit Profile
-            </Link>
+            {targetUserId && targetUserId !== authUser?.id ? (
+              <Link
+                href="/profile"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all shrink-0"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to My Profile
+              </Link>
+            ) : (
+              <Link
+                href="/profile/edit"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition-all shrink-0"
+              >
+                <Edit3 className="h-4 w-4" />
+                Edit Profile
+              </Link>
+            )}
           </div>
 
           {/* Bio and metadata row */}
@@ -237,14 +252,28 @@ export default function ProfilePage() {
                   href={`/projects/${tm.team.project.id}`}
                   className="block p-3 rounded-xl border border-slate-100 bg-slate-50 hover:bg-emerald-50/50 hover:border-emerald-200 transition-colors"
                 >
-                  <p className="text-xs font-bold text-slate-800">{tm.team.project.title}</p>
-                  <span className="text-[10px] text-slate-500">Role: {tm.role}</span>
-                </Link>
-              ))}
+                    <p className="text-xs font-bold text-slate-800">{tm.team.project.title}</p>
+                    <span className="text-[10px] text-slate-500">Role: {tm.role}</span>
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </AppLayout>
+      </AppLayout>
+    );
+  }
+
+export default function ProfilePage() {
+  return (
+    <Suspense
+      fallback={
+        <AppLayout>
+          <CardSkeleton />
+        </AppLayout>
+      }
+    >
+      <ProfileContent />
+    </Suspense>
   );
 }

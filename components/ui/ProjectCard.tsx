@@ -60,10 +60,10 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             </span>
             <span
               className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
-                statusColors[project.status] || 'bg-slate-100 text-slate-600'
+                statusColors[project.status || 'OPEN'] || 'bg-slate-100 text-slate-600'
               }`}
             >
-              {project.status.replace('_', ' ')}
+              {(project.status || 'OPEN').replace('_', ' ')}
             </span>
           </div>
 

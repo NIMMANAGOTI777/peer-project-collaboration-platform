@@ -30,7 +30,7 @@ import {
 export default function ProjectDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isDemo } = useAuth();
 
   const [project, setProject] = useState<any>(null);
   const [matches, setMatches] = useState<any[]>([]);
@@ -151,11 +151,11 @@ export default function ProjectDetailsPage() {
     );
   }
 
-  const isOwner = user?.id === project.ownerId;
+  const isOwner = user?.id === project.ownerId || (isDemo && project.ownerId === 'cmuzaljn5000sg71jndldlm8k');
   const isMember =
-    isOwner || project.team?.members.some((m: any) => m.userId === user?.id);
+    isOwner || project.team?.members.some((m: any) => m.userId === user?.id) || isDemo;
   const isAdmin = user?.role === 'ADMIN';
-  const canManage = isOwner || isAdmin;
+  const canManage = isOwner || isAdmin || isDemo;
 
   const teamMembers = project.team?.members || [];
   const teamMemberOptions = teamMembers.map((m: any) => ({
